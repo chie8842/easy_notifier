@@ -1,5 +1,18 @@
+# easy_notifier
+
+
+truly easily notify your process information when it finished
+
+## Description
+
+* Easy_notifier is a decorator that supports time-consuming, trial-and-error integrations.
+* It can tell the start time, finish time, status, and return value when your process finished.
+* It can tell your process end with slack, e-mail, or mac pop-up.
+* Usage is very easy. only write `@easy_notifier` on your method.
 
 ## Installation
+
+`pip install easy_notifier` or build from source.
 
 ```
 git clone https://github.com/chie8842/easy_notifier
@@ -8,6 +21,8 @@ pip install . -r requirements.txt
 ```
 
 ## Usage
+
+Only three steps to use easy-notifier.
 
 1. put config.ini at your current directory
 2. write `@easy_notifier` on the method at your python script
