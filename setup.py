@@ -22,9 +22,8 @@ with open(os.path.join(here, 'README.md')) as f:
     readme = f.read()
 
 
-def _requires_from_file(filename):
-    return open(filename).read().splitlines()
-
+with open('requirements.txt') as f:
+    requires = f.read().splitlines()
 
 setup(
     name='easy_notifier',
@@ -37,7 +36,5 @@ setup(
     test_suite='test',
     classifiers=__classifiers__,
     packages=find_packages(),
-    install_requires=_requires_from_file('requirements.txt'),
-    include_package_data=True,
-    licence='MIT'
-    )
+    install_requires=requires,
+    license='MIT')
