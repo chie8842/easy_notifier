@@ -1,0 +1,12 @@
+[easy_notifier]
+env = ec2
+notify_slack = true
+notify_mac = false
+incoming_webhook_url = 'https://slack/testurl'
+slack_id = my_slack_id
+process_name = test_process
+channel = my_slack_channel
+notify_gmail = true
+from_address = test@gmail.com
+from_password = password
+to_address = test2@xxx.com
