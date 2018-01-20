@@ -33,7 +33,7 @@ def example_func()
 
 ## Configurations
 
-* env 
+* env  
 you can set ec2 or gce or local.
 If you set ec2, `Name` tag is used for instance_name at notification.
 Else if you set local, `hostname` is used for instance_name at notification.
