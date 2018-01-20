@@ -119,7 +119,7 @@ def _set_status(status):
         status_icon = ':ok_woman:'
     else:
         title = 'Process Failed'
-        color = 'denger'
+        color = 'danger'
         status_icon = ':no_good:'
     return title, color, status_icon
 
