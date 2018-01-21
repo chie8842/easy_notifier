@@ -36,7 +36,7 @@ def example_func()
 
 ```
 
-you can use another file name with args as below.
+You can use another file name with args as below.
 
 ```
 @easy_notifier(~/.easy_notifier.cfg)
@@ -47,6 +47,10 @@ def example_func()
 ```
 
 ## Configurations
+
+Put configuration file and set according to [config.ini.sample](https://github.com/chie8842/easy_notifier/blob/master/easy_notifier/config.ini.sample) 
+
+Explaination for each parameter is below.
 
 * env  
 you can set ec2 or gce or local.
