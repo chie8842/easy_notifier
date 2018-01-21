@@ -34,6 +34,13 @@ def _get_config(*args, **kwargs):
 
 
 def _set_process_name(func, process_name):
+    """_set_process_name
+    If process_name is not set on configuration file,
+    func.__name__ is used as the process_name
+
+    :param func:
+    :param process_name:
+    """
     if len(process_name) == 0:
         process_name = func.__name__
     return process_name
@@ -107,6 +114,8 @@ def _set_attachments(slack_id, contents, status, channel):
 
 def _set_status(status):
     """_set_status
+    set notification title w.r.t. status.
+    In addition, color and status icon which is used at slack notification is set, too.
 
     :param status:
     """
@@ -125,6 +134,14 @@ def _set_status(status):
 
 
 def _set_contents(instance_name, process_name, result, start_time, finish_time):
+    """_set_contents
+
+    :param instance_name:
+    :param process_name:
+    :param result:
+    :param start_time:
+    :param finish_time:
+    """
     contents = '''
         instance_name: {}
         process_name: {}
