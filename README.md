@@ -10,6 +10,8 @@ truly easily notify your process information when it finished
 * It can tell your process end with slack, e-mail, or mac pop-up.
 * Usage is very easy. only write `@easy_notifier` on your method.
 
+Japanese document is [here](http://chie8842.hatenablog.com/entry/2018/01/21/152626).
+
 ## Installation
 
 `pip install easy_notifier` or build from source.
