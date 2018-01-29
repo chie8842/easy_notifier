@@ -41,6 +41,7 @@ def _set_process_name(func, process_name):
     :param func:
     :param process_name:
     """
+    print(process_name)
     if len(process_name) == 0:
         process_name = func.__name__
     return process_name
@@ -235,86 +236,89 @@ def _gmail_send(from_address, from_password, to_address, msg):
     smtpobj.sendmail(from_address, to_address, msg.as_string())
     smtpobj.close()
 
+def easy_notifier(cfg_file='config.ini'):
+    def _easy_notifier(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            # TODO: get status of the process
 
-def easy_notifier(func, *args, **kwargs):
-    @functools.wraps(func)
-    def wrapper():
-        # TODO: get status of the process
+            cfg_file = ''
+            if 'cfg_file' not in locals()['kwargs']:
+                cfg_file = 'config.ini'
+            else:
+                cfg_file = kwargs['cfg_file']
 
-        cfg_file = ''
-        if 'cfg_file' not in locals()['kwargs']:
-            cfg_file = 'config.ini'
-        else:
-            cfg_file = kwargs['cfg_file']
+            config = _get_config(cfg_file=cfg_file)
+            if len(config) == 0:
+                sys.exit(1)
 
-        config = _get_config(cfg_file=cfg_file)
-        if len(config) == 0:
-            sys.exit(1)
+            env = config['env']
+            notify_slack = config.getboolean('notify_slack')
+            notify_mac = config.getboolean('notify_mac')
+            notify_gmail = config.getboolean('notify_gmail')
+            print('func')
+            print(func)
+            process_name = _set_process_name(func, config['process_name'])
 
-        env = config['env']
-        notify_slack = config.getboolean('notify_slack')
-        notify_mac = config.getboolean('notify_mac')
-        notify_gmail = config.getboolean('notify_gmail')
-        process_name = _set_process_name(func, config['process_name'])
+            if notify_mac and os.uname()[0] != 'Darwin':
+                print('notify_mac parameter is variable at only MacOSX')
 
-        if notify_mac and os.uname()[0] != 'Darwin':
-            print('notify_mac parameter is variable at only MacOSX')
+            instance_name = ''
+            if env == 'ec2':
+                instance_name = _get_instance_name_from_ec2_tag()
+            elif env == 'gce':
+                instance_name = _get_instance_name_from_gce_tag()
+            elif env == 'local':
+                instance_name = _get_hostname()
 
-        instance_name = ''
-        if env == 'ec2':
-            instance_name = _get_instance_name_from_ec2_tag()
-        elif env == 'gce':
-            instance_name = _get_instance_name_from_gce_tag()
-        elif env == 'local':
-            instance_name = _get_hostname()
+            if len(instance_name) == 0:
+                sys.exit(1)
 
-        if len(instance_name) == 0:
-            sys.exit(1)
+            result = ''
+            start_time = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+            try:
+                result = func(*args, **kwargs)
+                status = 0
+            except:
+                status = 1
 
-        result = ''
-        start_time = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
-        try:
-            result = func(*args, **kwargs)
-            status = 0
-        except:
-            status = 1
+            finish_time = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
 
-        finish_time = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+            contents = _set_contents(
+                    instance_name,
+                    process_name,
+                    result,
+                    start_time,
+                    finish_time)
 
-        contents = _set_contents(
-                instance_name,
-                process_name,
-                result,
-                start_time,
-                finish_time)
+            if notify_slack:
+                incoming_webhook_url = config['incoming_webhook_url']
+                slack_id = config['slack_id']
+                channel = config['channel']
+                attachments = _set_attachments(
+                        slack_id,
+                        contents,
+                        status,
+                        channel)
+                _notify_slack(incoming_webhook_url, attachments)
 
-        if notify_slack:
-            incoming_webhook_url = config['incoming_webhook_url']
-            slack_id = config['slack_id']
-            channel = config['channel']
-            attachments = _set_attachments(
-                    slack_id,
-                    contents,
-                    status,
-                    channel)
-            _notify_slack(incoming_webhook_url, attachments)
+            if notify_gmail:
+                from_address = config['from_address']
+                from_password = config['from_password']
+                to_address = config['to_address']
+                _notify_gmail(
+                        from_address,
+                        from_password,
+                        to_address,
+                        contents,
+                        status)
 
-        if notify_gmail:
-            from_address = config['from_address']
-            from_password = config['from_password']
-            to_address = config['to_address']
-            _notify_gmail(
-                    from_address,
-                    from_password,
-                    to_address,
-                    contents,
-                    status)
+            if notify_mac and os.uname()[0] == 'Darwin':
+                _notify_mac(
+                        contents,
+                        status)
 
-        if notify_mac and os.uname()[0] == 'Darwin':
-            _notify_mac(
-                    contents,
-                    status)
+            return result
 
-        return result
-
-    return wrapper
+        return wrapper
+    return _easy_notifier
