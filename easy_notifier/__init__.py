@@ -14,21 +14,21 @@ def _get_config(*args, **kwargs):
     """_get_config
     get configurations from config file.
     default config file name is 'config.ini'.
-    if you have cfg_file definition, it will used instead of default config.ini.
+    if you have easy_notifier_cfg definition, it will used instead of default config.ini.
     """
     config = ConfigParser()
 
-    cfg_file = ''
-    if 'cfg_file' not in locals()['kwargs']:
-        cfg_file = 'config.ini'
+    easy_notifier_cfg = ''
+    if 'easy_notifier_cfg' not in locals()['kwargs']:
+        easy_notifier_cfg = 'config.ini'
     else:
-        cfg_file = kwargs['cfg_file']
+        easy_notifier_cfg = kwargs['easy_notifier_cfg']
 
     try:
-        config.read(cfg_file)
+        config.read(easy_notifier_cfg)
         config = config['easy_notifier']
     except(RuntimeError, KeyError):
-        print('failed to read {}'.format(cfg_file))
+        print('failed to read {}'.format(easy_notifier_cfg))
         config = {}
     return config
 
@@ -236,19 +236,16 @@ def _gmail_send(from_address, from_password, to_address, msg):
     smtpobj.sendmail(from_address, to_address, msg.as_string())
     smtpobj.close()
 
-def easy_notifier(cfg_file='config.ini'):
-    def _easy_notifier(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            # TODO: get status of the process
-
-            cfg_file = ''
-            if 'cfg_file' not in locals()['kwargs']:
-                cfg_file = 'config.ini'
+def easy_notifier(func, easy_notifier_cfg='config.ini'):
+    @functools.wraps(func)
+    def _easy_notifier(*args, **kwargs):
+            easy_notifier_cfg = ''
+            if 'easy_notifier_cfg' not in locals()['kwargs']:
+                easy_notifier_cfg = 'config.ini'
             else:
-                cfg_file = kwargs['cfg_file']
+                easy_notifier_cfg = kwargs['easy_notifier_cfg']
 
-            config = _get_config(cfg_file=cfg_file)
+            config = _get_config(easy_notifier_cfg=easy_notifier_cfg)
             if len(config) == 0:
                 sys.exit(1)
 
@@ -256,8 +253,6 @@ def easy_notifier(cfg_file='config.ini'):
             notify_slack = config.getboolean('notify_slack')
             notify_mac = config.getboolean('notify_mac')
             notify_gmail = config.getboolean('notify_gmail')
-            print('func')
-            print(func)
             process_name = _set_process_name(func, config['process_name'])
 
             if notify_mac and os.uname()[0] != 'Darwin':
@@ -320,5 +315,4 @@ def easy_notifier(cfg_file='config.ini'):
 
             return result
 
-        return wrapper
     return _easy_notifier
