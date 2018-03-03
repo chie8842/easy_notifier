@@ -227,13 +227,17 @@ def _gmail_send(from_address, from_password, to_address, msg):
     :param to_address:
     :param msg:
     """
-    smtpobj = smtplib.SMTP('smtp.gmail.com', 587)
-    smtpobj.ehlo()
-    smtpobj.starttls()
-    smtpobj.ehlo()
-    smtpobj.login(from_address, from_password)
-    smtpobj.sendmail(from_address, to_address, msg.as_string())
-    smtpobj.close()
+    try:
+        smtpobj = smtplib.SMTP('smtp.gmail.com', 587)
+        smtpobj.ehlo()
+        smtpobj.starttls()
+        smtpobj.ehlo()
+        smtpobj.login(from_address, from_password)
+        smtpobj.sendmail(from_address, to_address, msg.as_string())
+        smtpobj.close()
+    except(smtplib.SMTPAuthenticationError):
+        print('Your Gmail setting is not valid')
+        pass
 
 def easy_notifier(easy_notifier_cfg='config.ini'):
     def _easy_notifier(func):
