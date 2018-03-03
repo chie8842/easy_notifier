@@ -2,7 +2,7 @@ import os
 from setuptools import setup, find_packages
 
 
-__version__ = '0.1.4'
+__version__ = '0.1.5'
 __author__ = 'Chie Hayashida'
 __author_email__ = 'chie-hayashida@cookpad.com'
 __classifiers__ = (
