@@ -41,7 +41,6 @@ def _set_process_name(func, process_name):
     :param func:
     :param process_name:
     """
-    print(process_name)
     if len(process_name) == 0:
         process_name = func.__name__
     return process_name
@@ -236,9 +235,10 @@ def _gmail_send(from_address, from_password, to_address, msg):
     smtpobj.sendmail(from_address, to_address, msg.as_string())
     smtpobj.close()
 
-def easy_notifier(func, easy_notifier_cfg='config.ini'):
-    @functools.wraps(func)
-    def _easy_notifier(*args, **kwargs):
+def easy_notifier(easy_notifier_cfg='config.ini'):
+    def _easy_notifier(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
             easy_notifier_cfg = ''
             if 'easy_notifier_cfg' not in locals()['kwargs']:
                 easy_notifier_cfg = 'config.ini'
@@ -314,5 +314,5 @@ def easy_notifier(func, easy_notifier_cfg='config.ini'):
                         status)
 
             return result
-
+        return wrapper
     return _easy_notifier
